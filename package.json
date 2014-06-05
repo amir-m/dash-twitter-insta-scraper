@@ -1,0 +1,16 @@
+{
+  "name": "dashbookapp",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "*",
+    "mongoose": "*",
+    "redis": "*",
+    "aws-sdk": "*",
+    "cookie": "*",
+    "connect": "*",
+    "body-parser": "*",
+    "method-override": "*",
+    "morgan": "*",
+    "async": "*"
+  }
+}
