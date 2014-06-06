@@ -64,3 +64,7 @@ app.get('/twitter/:handler', function(req, res){
 	});
 });
 
+app.get('/health', function(req, res){
+	res.send(200);
+});
+
