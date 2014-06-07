@@ -140,7 +140,7 @@ function fetch(options) {
 // 	  		process.send({
 // 	  			error: true
 // 	  		});
-	  		global.gc();
+	  		// global.gc();
 // 	  		throw error;
 // 	  	}
 // 	  	console.log('json generated..')
