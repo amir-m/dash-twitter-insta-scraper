@@ -43,13 +43,13 @@ function fetch(options) {
 		});
 
 		res.on('end', function(){
-			data = data;
+			data = data.toString('utf8');
 			data = data.replace(/\n/g, '');
 			data = data.replace(/\r/g, '');
 			data = data.replace(/ +(?= )/g,'');
 			data = data.replace(/>\s*</g,'><');
 			
-			var divs = data.toString('utf8').split('<div class="Grid" data-component-term="tweet" role="presentation">');
+			var divs = data.split('<div class="Grid" data-component-term="tweet" role="presentation">');
 			divs.splice(divs.length - 1, 1);
 			divs.splice(0, 1);
 

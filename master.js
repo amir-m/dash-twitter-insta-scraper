@@ -22,6 +22,7 @@ app.use(require('morgan')('dev'));
 app.set('port', process.env.PORT || 8080);
 
 var twitter = require('child_process').fork(__dirname + '/twitter.js');
+var instagram = require('child_process').fork(__dirname + '/instagram.js');
 
 if (cluster.isMaster) {
 	for (var i = 0; i < cpuCount; i++) {
@@ -47,6 +48,7 @@ function spawn(){
 };
 
 app.get('/twitter/:handler', function(req, res){
+	var sent = false;
 	var path;
 	if (req.query.f && req.query.f == 'img') {
 		path = '/' + req.param('handler') +'/media';
@@ -61,6 +63,26 @@ app.get('/twitter/:handler', function(req, res){
 		}
 		console.log('respond received from twitter...')
 		res.send(message.data);
+		sent = true;
+	});
+	twitter.on('close', function(code){
+		if (!sent) res.send(500);
+	});
+});
+
+app.get('/instagram/:handler', function(req, res){
+	var sent = false;
+	instagram.send('/' + req.param('handler'));
+	instagram.on('message', function(message){
+		if (message.error) {
+			return res.send(500);
+		}
+		console.log('respond received from instagram...')
+		res.send(message.data);
+		sent = true;
+	});
+	instagram.on('close', function(code){
+		if (!sent) res.send(500);
 	});
 });
 
