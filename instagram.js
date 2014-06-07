@@ -114,7 +114,7 @@ function fetch(options) {
 				process.send({
 					error: true
 				});
-				global.gc();
+				// global.gc();
 			}
 			finalize(responses);
 		});
@@ -124,7 +124,7 @@ function fetch(options) {
 	  process.send({
 	  	error: true
 	  });
-	  global.gc();
+	  // global.gc();
 	});
 
 	req.end();
@@ -140,7 +140,7 @@ function fetch(options) {
 // 	  		process.send({
 // 	  			error: true
 // 	  		});
-// 	  		global.gc();
+	  		global.gc();
 // 	  		throw error;
 // 	  	}
 // 	  	console.log('json generated..')
@@ -167,7 +167,7 @@ function finalize(json) {
 		data: json
 	});
 	json = null;
-	global.gc();
+	// global.gc();
 };
 
 

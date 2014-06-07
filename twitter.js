@@ -70,7 +70,7 @@ function fetch(options) {
 	  process.send({
 	  	error: true
 	  });
-	  global.gc();
+	  // global.gc();
 	});
 
 	req.end();
@@ -86,7 +86,7 @@ function jsonify(index, div) {
 	  		process.send({
 	  			error: true
 	  		});
-	  		global.gc();
+	  		// global.gc();
 	  		throw error;
 	  	}
 	  	console.log('json generated..')
@@ -119,5 +119,5 @@ function finalize() {
 	process.send({
 		data: json
 	});
-	global.gc();
+	// global.gc();
 };

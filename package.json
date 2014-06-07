@@ -1,6 +1,6 @@
 {
   "name": "engine",
-  "scripts": {"start": "node --expose-gc master.js"},
+  "scripts": {"start": "node master.js"},
   "version": "0.0.1",
   "dependencies": {
     "express": "*",
