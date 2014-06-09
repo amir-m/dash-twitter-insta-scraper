@@ -49,24 +49,16 @@ function fetch(options) {
 
 			var divs = data.split('<div class="matches">')[1];
 
-			divs = data.split('</div></div></div><div class="row row-last">')[0];
+			divs = divs.split('</div></div></div><div class="row row-last">')[0];
 
 			divs += '</div></div></div>';
 
-			// divs = divs.split('</div></div></div><div class="grid_4">')[0];
+			// fs.writeFile('content.html', divs, function(error){
+			// 	if (error) throw error;
+			// 	console.log('wrote to file')
+			// });
 
-			// console.log(divs.length);
-			
-			// var divs = data.split('<div id="bodyContentExt">')[1];
-			// divs = data.split('<div id="thirdRail">')[0];
-
-			// eval('divs = ' + divs)
-			// console.log(divs);
-
-			fs.writeFile('content.html', divs, function(error){
-				if (error) throw error;
-				console.log('wrote to file')
-			});
+			jsonify(divs);
 
 			divs = null;
 			data = null;
@@ -83,8 +75,8 @@ function fetch(options) {
 	req.end();
 };
 
-function jsonify(index, div) {
-	console.log('in jsonify')
+function jsonify(div) {
+	console.log('in jsonify');
 	jsdom.env(
 	  div,
 	  ["http://code.jquery.com/jquery.js"],
@@ -97,34 +89,63 @@ function jsonify(index, div) {
 	  		throw error;
 	  	}
 	  	console.log('json generated..')
-	  	json.push({
-	  		index: index,
-	  		tweeted_by:  window.$('.ProfileTweet-fullname').text(),
-	  		tweet_body: window.$("p").text(),
-	  		tweet_image_url: window.$('.TwitterPhoto-mediaSource').attr('src'),
-	  		tweet_url: window.$('.twitter-timeline-link').attr('href'),
-	  		retweet_count: window.$('.ProfileTweet-action--retweet .ProfileTweet-actionCountForPresentation').text(),
-	  		favorited_count: window.$('.ProfileTweet-action--favorite .ProfileTweet-actionCountForPresentation').text(),
-	  		tweet_timestamp: window.$('.js-short-timestamp').text()
-	  	});
-	  	left.splice(left.indexOf(index), 1);
-	  	if (left.length == 0) finalize();
+	  	// json.push({
+	  	// 	index: index,
+	  	// 	tweeted_by:  window.$('.ProfileTweet-fullname').text(),
+	  	// 	tweet_body: window.$("p").text(),
+	  	// 	tweet_image_url: window.$('.TwitterPhoto-mediaSource').attr('src'),
+	  	// 	tweet_url: window.$('.twitter-timeline-link').attr('href'),
+	  	// 	retweet_count: window.$('.ProfileTweet-action--retweet .ProfileTweet-actionCountForPresentation').text(),
+	  	// 	favorited_count: window.$('.ProfileTweet-action--favorite .ProfileTweet-actionCountForPresentation').text(),
+	  	// 	tweet_timestamp: window.$('.js-short-timestamp').text()
+	  	// });
+
+		// window.$('.h3-wrap').each(function(){
+		// 	console.log(this.innerHTML);
+		// });
+
+		var $ = window.$;
+		var obj = {};
+		$('.mu-m-link .mu-i-date, .mu-m-link .s-scoreText, .mu-m-link .home .t-nText, .mu-m-link .away .t-nText').each(function(){
+			if (this.className == 'mu-i-date') {
+				obj['date'] = this.innerHTML;
+			}
+			else {
+				this.className = this.className.replace(/ +(?= )/g,'');
+				this.className = this.className.replace(' ', '');
+			}
+			if (this.className == 't-nText' && this.parentNode.parentNode.className == 't home') {
+				obj['home_team'] = this.innerHTML;
+			}
+			else if (this.className == 't-nText' && this.parentNode.parentNode.className == 't away') {
+				obj['away_team'] = this.innerHTML;
+			}
+			else if (this.className == 's-scoreText') {
+				obj['score'] = this.innerHTML;
+			}
+			json.push(obj);
+			// console.log(this.className)
+			// console.log('\t', this.innerHTML);
+			// console.log('}')
+		});
 	  	div = null;
+	  	finalize();
 	  }
 	);
 };
 
 function finalize() {
-	json.sort(function(a, b) {
-		return a.index - b.index;
-	});
+	// json.sort(function(a, b) {
+	// 	return a.index - b.index;
+	// });
 
-	for (var i = 0; i < json.length; ++i) {
-		delete json[i].index;
-	};
+	// for (var i = 0; i < json.length; ++i) {
+	// 	json[i] = data
+	// 	delete json[i].index;
+	// };
 	console.log('ready to respond...')
 	process.send({
-		data: json
+		data: { data: json }
 	});
 	// global.gc();
 };

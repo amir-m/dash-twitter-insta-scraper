@@ -117,7 +117,7 @@ function finalize() {
 	};
 	console.log('ready to respond...')
 	process.send({
-		data: json
+		data: { data: json }
 	});
 	// global.gc();
 };

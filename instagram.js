@@ -94,7 +94,7 @@ function fetch(options) {
 function finalize(json) {
 	console.log('ready to respond...')
 	process.send({
-		data: json
+		data: { data: json }
 	});
 	json = null;
 	// global.gc();
