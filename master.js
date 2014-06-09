@@ -23,6 +23,7 @@ app.set('port', process.env.PORT || 8080);
 
 var twitter = require('child_process').fork(__dirname + '/twitter.js');
 var instagram = require('child_process').fork(__dirname + '/instagram.js');
+var fifa = require('child_process').fork(__dirname + '/fifa.js');
 
 if (cluster.isMaster) {
 	for (var i = 0; i < cpuCount; i++) {
@@ -82,6 +83,22 @@ app.get('/instagram/:handler', function(req, res){
 		sent = true;
 	});
 	instagram.on('close', function(code){
+		if (!sent) res.send(500);
+	});
+});
+
+app.get('/fifa', function(req, res){
+	var sent = false;
+	fifa.send();
+	fifa.on('message', function(message){
+		if (message.error) {
+			return res.send(500);
+		}
+		console.log('respond received from fifa...')
+		res.send(message.data);
+		sent = true;
+	});
+	fifa.on('close', function(code){
 		if (!sent) res.send(500);
 	});
 });
