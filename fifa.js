@@ -32,7 +32,7 @@ process.on('message', function(message){
 function fetch(options) {
 	console.log('about to fetch');
 	start = new Date().getTime();
-	var req = https.request(options, function(res){
+	var req = http.request(options, function(res){
 		var data = '';
 
 		res.on('data', function(chunk){
@@ -49,7 +49,7 @@ function fetch(options) {
 			var divs = data.split('<div id="bodyContentExt">')[1];
 			divs = data.split('<div id="thirdRail">')[0];
 
-			fs.writeSync('html', divs);
+			fs.writeSync('content.html', divs);
 
 			divs = null;
 			data = null;

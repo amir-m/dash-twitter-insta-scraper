@@ -89,7 +89,7 @@ app.get('/instagram/:handler', function(req, res){
 
 app.get('/fifa', function(req, res){
 	var sent = false;
-	fifa.send();
+	fifa.send({ });
 	fifa.on('message', function(message){
 		if (message.error) {
 			return res.send(500);
