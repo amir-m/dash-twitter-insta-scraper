@@ -190,7 +190,7 @@ function finalize() {
 			away_team_flag: away_team_flag[i]
 		});
 	};
-	console.log('ready to respond...')
+	console.log('ready to respond... ', json.length);
 	process.send({
 		data: { data: json }
 	});
