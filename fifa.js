@@ -24,6 +24,9 @@ var options = {
 	}	
 };
 
+var date = [], home_team = [], away_team = [], score = [], 
+	home_team = [], away_team_flag = [], home_team_flag = [];
+
 process.on('message', function(message){
 	fetch(options);
 });
@@ -105,34 +108,58 @@ function jsonify(div) {
 		// });
 
 		var $ = window.$;
-		var obj = {};
-		$('.mu-m-link .mu-i-date, .mu-m-link .s-scoreText, .mu-m-link .home .t-nText, .mu-m-link .away .t-nText, .mu-m-link .home .flag, .mu-m-link .away .flag').each(function(){
-			if (this.className == 'mu-i-date') {
-				obj['date'] = this.innerHTML;
-			}
-			else {
-				this.className = this.className.replace(/ +(?= )/g,'');
-				this.className = this.className.replace(' ', '');
-			}
-			if (this.className == 't-nText' && this.parentNode.parentNode.className == 't home') {
-				obj['home_team'] = this.innerHTML;
-			}
-			else if (this.className == 't-nText' && this.parentNode.parentNode.className == 't away') {
-				obj['away_team'] = this.innerHTML;
-			}
-			else if (this.className == 's-scoreText') {
-				obj['score'] = this.innerHTML;
-			}
-			else if (this.src && this.parentNode.parentNode.className == 't home') {
-				obj['home_team_flag'] = this.src;
-			}
-			else if (this.src && this.parentNode.parentNode.className == 't away') {
-				obj['away_team_flag'] = this.src;
-			}
-			json.push(obj);
-			// console.log(this.className)
-			// console.log('\t', this.innerHTML);
-			// console.log('}')
+
+		// $('.mu-m-link .mu-i-date, .mu-m-link .s-scoreText, .mu-m-link .home .t-nText, .mu-m-link .away .t-nText, .mu-m-link .home .flag, .mu-m-link .away .flag').each(function(){
+
+		// 	if (this.className == 'mu-i-date') {
+		// 		temp.push(this.innerHTML);
+		// 	}
+		// 	else {
+		// 		this.className = this.className.replace(/ +(?= )/g,'');
+		// 		this.className = this.className.replace(' ', '');
+		// 	}
+		// 	if (this.className == 't-nText' && this.parentNode.parentNode.className == 't home') {
+		// 		// obj['home_team'] = this.innerHTML;
+		// 		temp.push(this.innerHTML);
+		// 	}
+		// 	else if (this.className == 't-nText' && this.parentNode.parentNode.className == 't away') {
+		// 		// obj['away_team'] = this.innerHTML;
+		// 		// temp.push(this.innerHTML);
+		// 	}
+		// 	else if (this.className == 's-scoreText') {
+		// 		// obj['score'] = this.innerHTML;
+		// 		// temp.push(this.innerHTML);
+		// 	}
+		// 	else if (this.src && this.parentNode.parentNode.parentNode.className == 't home') {
+		// 		// obj['home_team_flag'] = this.src;
+		// 		// temp.push(this.src);
+		// 	}
+		// 	else if (this.src && this.parentNode.parentNode.parentNode.className == 't away') {
+		// 		// obj['away_team_flag'] = this.src;
+		// 		// temp.push(this.src);
+		// 	}
+		// 	// console.log(this.className)
+		// 	// console.log('\t', this.innerHTML);
+		// 	// console.log('}')
+		// });
+
+		$('.mu-m-link .mu-i-date').each(function(){
+			date.push(this.innerHTML);
+		});
+		$('.mu-m-link .s-scoreText').each(function(){
+			score.push(this.innerHTML);
+		});
+		$('.mu-m-link .home .t-nText').each(function(){
+			home_team.push(this.innerHTML);
+		});
+		$('.mu-m-link .away .t-nText').each(function(){
+			away_team.push(this.innerHTML);
+		});
+		$('.mu-m-link .home .flag').each(function(){
+			home_team_flag.push(this.src);
+		});
+		$('.mu-m-link .home .flag').each(function(){
+			away_team_flag.push(this.src);
 		});
 	  	div = null;
 	  	finalize();
@@ -141,14 +168,28 @@ function jsonify(div) {
 };
 
 function finalize() {
+	// console.log(temp);
+	// json.push({
+	// 	home_team: obj['home_team'],
+	// 	away_team: obj['away_team'],
+	// 	score: obj['score'],
+	// 	home_team_flag: obj['home_team_flag'],
+	// 	away_team_flag: obj['away_team_flag']
+	// });
 	// json.sort(function(a, b) {
 	// 	return a.index - b.index;
 	// });
 
-	// for (var i = 0; i < json.length; ++i) {
-	// 	json[i] = data
-	// 	delete json[i].index;
-	// };
+	for (var i = 0; i < date.length; ++i) {
+		json.push({
+			date: date[i],
+			score: score[i],
+			home_team: home_team[i],
+			home_team_flag: home_team_flag[i],
+			away_team: away_team[i],
+			away_team_flag: away_team_flag[i]
+		});
+	};
 	console.log('ready to respond...')
 	process.send({
 		data: { data: json }
