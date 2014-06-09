@@ -15,8 +15,8 @@ var http = require('http'),
 	left = [], json = [], start;
 
 var options = {
-	hostname: 'fifa.com',
-	path: '/world-match-centre/index.html', 
+	hostname: 'www.fifa.com', 
+	path: '/worldcup/matches/index.html', 
 	headers: {
 		accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 		'cache-control': 'max-age=0',
@@ -41,15 +41,32 @@ function fetch(options) {
 
 		res.on('end', function(){
 			data = data.toString('utf8');
-			// data = data.replace(/\n/g, '');
-			// data = data.replace(/\r/g, '');
-			// data = data.replace(/ +(?= )/g,'');
-			// data = data.replace(/>\s*</g,'><');
-			
-			var divs = data.split('<div id="bodyContentExt">')[1];
-			divs = data.split('<div id="thirdRail">')[0];
+			data = data.replace(/\n/g, '');
+			data = data.replace(/\r/g, '');
+			data = data.replace(/ +(?= )/g,'');
+			data = data.replace(/>\s*</g,'><');
 
-			fs.writeSync('./content.html', divs);
+
+			var divs = data.split('<div class="matches">')[1];
+
+			divs = data.split('</div></div></div><div class="row row-last">')[0];
+
+			divs += '</div></div></div>';
+
+			// divs = divs.split('</div></div></div><div class="grid_4">')[0];
+
+			// console.log(divs.length);
+			
+			// var divs = data.split('<div id="bodyContentExt">')[1];
+			// divs = data.split('<div id="thirdRail">')[0];
+
+			// eval('divs = ' + divs)
+			// console.log(divs);
+
+			fs.writeFile('content.html', divs, function(error){
+				if (error) throw error;
+				console.log('wrote to file')
+			});
 
 			divs = null;
 			data = null;
