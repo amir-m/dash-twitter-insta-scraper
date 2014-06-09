@@ -106,7 +106,7 @@ function jsonify(div) {
 
 		var $ = window.$;
 		var obj = {};
-		$('.mu-m-link .mu-i-date, .mu-m-link .s-scoreText, .mu-m-link .home .t-nText, .mu-m-link .away .t-nText').each(function(){
+		$('.mu-m-link .mu-i-date, .mu-m-link .s-scoreText, .mu-m-link .home .t-nText, .mu-m-link .away .t-nText, .mu-m-link .home .flag, .mu-m-link .away .flag').each(function(){
 			if (this.className == 'mu-i-date') {
 				obj['date'] = this.innerHTML;
 			}
@@ -122,6 +122,12 @@ function jsonify(div) {
 			}
 			else if (this.className == 's-scoreText') {
 				obj['score'] = this.innerHTML;
+			}
+			else if (this.src && this.parentNode.parentNode.className == 't home') {
+				obj['home_team_flag'] = this.src;
+			}
+			else if (this.src && this.parentNode.parentNode.className == 't away') {
+				obj['away_team_flag'] = this.src;
 			}
 			json.push(obj);
 			// console.log(this.className)
