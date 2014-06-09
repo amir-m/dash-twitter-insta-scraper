@@ -49,7 +49,7 @@ function fetch(options) {
 			var divs = data.split('<div id="bodyContentExt">')[1];
 			divs = data.split('<div id="thirdRail">')[0];
 
-			fs.writeSync('content.html', divs);
+			fs.writeSync('./content.html', divs);
 
 			divs = null;
 			data = null;
