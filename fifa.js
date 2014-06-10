@@ -195,9 +195,9 @@ function finalize() {
 			date: date[i],
 			score: score[i],
 			home_team: home_team[i],
-			home_team_flag: home_team_flag[i],
+			home_team_flag: home_team_flag[i].replace('4', 5),
 			away_team: away_team[i],
-			away_team_flag: away_team_flag[i],
+			away_team_flag: away_team_flag[i].replace('4', 5),
 			stadium: stadium[i],
 			city: city[i],
 			resource_uri: 'http://www.fifa.com' + resource_uri[i]
