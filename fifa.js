@@ -25,7 +25,7 @@ var options = {
 };
 
 var date = [], home_team = [], away_team = [], score = [], 
-	home_team = [], away_team_flag = [], home_team_flag = [];
+	home_team = [], away_team_flag = [], home_team_flag = [], stadium = [], city = [], resource_uri = [];
 
 process.on('message', function(message){
 	fetch(options);
@@ -161,6 +161,16 @@ function jsonify(div) {
 		$('.mu-m-link .away .flag').each(function(){
 			away_team_flag.push(this.src);
 		});
+		$('.mu-m-link .mu-i-stadium').each(function(){
+			stadium.push(this.innerHTML);
+		});
+		$('.mu-m-link .mu-i-venue').each(function(){
+			city.push(this.innerHTML);
+		});
+		$('.mu-m-link').each(function(){
+			resource_uri.push(this.href);
+		});
+
 	  	div = null;
 	  	finalize();
 	  }
@@ -187,7 +197,10 @@ function finalize() {
 			home_team: home_team[i],
 			home_team_flag: home_team_flag[i],
 			away_team: away_team[i],
-			away_team_flag: away_team_flag[i]
+			away_team_flag: away_team_flag[i],
+			stadium: stadium[i],
+			city: city[i],
+			resource_uri: resource_uri[i]
 		});
 	};
 	console.log('ready to respond... ', json.length);
