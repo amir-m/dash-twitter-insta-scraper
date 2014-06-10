@@ -158,7 +158,7 @@ function jsonify(div) {
 		$('.mu-m-link .home .flag').each(function(){
 			home_team_flag.push(this.src);
 		});
-		$('.mu-m-link .home .flag').each(function(){
+		$('.mu-m-link .away .flag').each(function(){
 			away_team_flag.push(this.src);
 		});
 	  	div = null;
