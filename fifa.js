@@ -178,21 +178,13 @@ function jsonify(div) {
 };
 
 function finalize() {
-	// console.log(temp);
-	// json.push({
-	// 	home_team: obj['home_team'],
-	// 	away_team: obj['away_team'],
-	// 	score: obj['score'],
-	// 	home_team_flag: obj['home_team_flag'],
-	// 	away_team_flag: obj['away_team_flag']
-	// });
-	// json.sort(function(a, b) {
-	// 	return a.index - b.index;
-	// });
+	
+	// var today = new Date(new Date().toLocaleDateString()).getTime();
 
 	for (var i = 0; i < date.length; ++i) {
 		json.push({
 			date: date[i],
+			timestamp: new Date(date[i]).getTime(),
 			score: score[i],
 			home_team: home_team[i],
 			home_team_flag: home_team_flag[i].replace('4', 5),
@@ -203,6 +195,11 @@ function finalize() {
 			resource_uri: 'http://www.fifa.com' + resource_uri[i]
 		});
 	};
+	
+	json.sort(function(a, b){
+		return a.timestamp - b.timestamp;
+	});
+
 	console.log('ready to respond... ', json.length);
 	process.send({
 		data: { data: json }
