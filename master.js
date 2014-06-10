@@ -92,6 +92,7 @@ app.get('/fifa', function(req, res){
 	fifa.send({ });
 	fifa.on('message', function(message){
 		if (message.error) {
+			sent = true;
 			return res.send(500);
 		}
 		console.log('respond received from fifa...')
