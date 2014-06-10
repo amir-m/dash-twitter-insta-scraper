@@ -200,7 +200,7 @@ function finalize() {
 			away_team_flag: away_team_flag[i],
 			stadium: stadium[i],
 			city: city[i],
-			resource_uri: resource_uri[i]
+			resource_uri: 'http://www.fifa.com' + resource_uri[i]
 		});
 	};
 	console.log('ready to respond... ', json.length);
