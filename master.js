@@ -11,9 +11,11 @@ var http = require('http'),
 	fs = require('fs'),
 	cpuCount = require('os').cpus().length,
 	app = express(),
+	models = require('./models').config(mongoose),
 	agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36',
 	workers= {}, left = [], start;
 	
+models.ready();
 
 app.set('views', __dirname + '/app');
 app.use(require('body-parser')());
@@ -245,9 +247,10 @@ function finalize(id, res_object, cb) {
 	for (var i = 0; i < res_object.date.length; ++i) {
 		json.push({
 			// date: status[i].length > 0 ? status[i] : date[i],
+			id: models.id(),
 			date: res_object.date[i],
 			status: res_object.status[i],
-			timestamp: new Date(res_object.date[i]).getTime(),
+			timestamp: new Date(res_object.date[i]).getTime() + i,
 			score: res_object.score[i],
 			home_team: res_object.home_team[i],
 			home_team_flag: res_object.home_team_flag[i].replace('4', 5),
@@ -257,6 +260,8 @@ function finalize(id, res_object, cb) {
 			city: res_object.city[i],
 			resource_uri: 'http://www.fifa.com' + res_object.resource_uri[i].replace('file://', '')
 		});
+
+		if (json[i].score.indexOf('-') != -1 && (!json[i].status || json[i].status.length == 0)) json[i].status = 'LIVE';
 	};
 	
 	json.sort(function(a, b){

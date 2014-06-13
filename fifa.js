@@ -153,7 +153,7 @@ function finalize(id, res_object) {
 			// date: status[i].length > 0 ? status[i] : date[i],
 			date: res_object.date[i],
 			status: res_object.status[i],
-			timestamp: new Date(res_object.date[i]).getTime(),
+			timestamp: new Date(res_object.date[i]).getTime() + i,
 			score: res_object.score[i],
 			home_team: res_object.home_team[i],
 			home_team_flag: res_object.home_team_flag[i].replace('4', 5),
@@ -163,6 +163,8 @@ function finalize(id, res_object) {
 			city: res_object.city[i],
 			resource_uri: 'http://www.fifa.com' + res_object.resource_uri[i].replace('file://', '')
 		});
+
+		if (json[i].score.indexOf('-') != -1 && (!json[i].status || json[i].status.length == 0)) json[i].status = 'LIVE';
 	};
 	
 	json.sort(function(a, b){
