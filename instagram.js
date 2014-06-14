@@ -1,8 +1,7 @@
 stackTraceLimit = Infinity;
 
-console.log('Forking Instagram %s...', process.pid);
-
-var http = require('http'),
+var self = this,
+	http = require('http'),
 	https = require('https'),
 	redis = require('redis'),
 	phantom = require('phantom'),
@@ -13,28 +12,9 @@ var http = require('http'),
 	fs = require('fs'),
 	cpuCount = require('os').cpus().length,
 	agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36',
-	left = [], json = [], start;
+	left = [], start;
 
-var options = {
-	hostname: 'instagram.com',
-	path: '/', 
-	headers: {
-		'cache-control': 'max-age=0',
-		'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36'
-	}	
-};
-
-process.on('message', function(message){
-	console.log('got message')
-	console.log(message);
-	options.path = message;
-	// options.path = 'http://' + options.hostname + options.path;
-	fetch(options);
-});
-
-
-function fetch(options) {
-	console.log('about to fetch')
+function fetch(options, cb) {
 	start = new Date().getTime();
 	var req = http.request(options, function(res){
 		var data = '';
@@ -42,7 +22,6 @@ function fetch(options) {
 
 		res.on('data', function(chunk){
 			data += chunk;
-
 		});
 
 		res.on('end', function(){
@@ -56,10 +35,9 @@ function fetch(options) {
 				eval(data);
 				data = null;
 				t = t.entry_data.UserProfile[0].userMedia;
-				console.log(t[0].images.standard_resolution);
-				var responses = [];
+				var res_object = [];
 				for (var i = 0; i < t.length; ++i) {
-					responses.push({
+					res_object.push({
 						source_uri: t[i].link,
 						posted_by: t[i].user.username,
 						image_url: t[i].images.standard_resolution.url,
@@ -73,29 +51,30 @@ function fetch(options) {
 			catch(error) {
 				console.log(error);
 				t = null;
-				process.send({
-					error: true
-				});
+				cb(error);
 				// global.gc();
 			}
-			finalize(responses);
+			finalize(res_object, cb);
 		});
 	});
-	req.on('error', function(e) {
+	req.on('error', function(error) {
 	  console.log('problem with request: ' + e.message);
-	  process.send({
-	  	error: true
-	  });
+	  cb(error)
 	  // global.gc();
 	});
 
 	req.end();
 };
-function finalize(json) {
+function finalize(json, callback) {
 	console.log('ready to respond...')
-	process.send({
-		data: { data: json }
-	});
+	callback(null, { data: json });
 	json = null;
 	// global.gc();
+};
+
+exports.fetch = fetch;
+
+exports.config = function(m){
+	models = m;
+	return self;
 };

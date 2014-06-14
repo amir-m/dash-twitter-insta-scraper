@@ -12,6 +12,8 @@ var http = require('http'),
 	cpuCount = require('os').cpus().length,
 	app = express(),
 	models = require('./models').config(mongoose),
+	instagram = require('./instagram'),
+	twitter = require('./twitter'),
 	fifa = require('./fifa'),
 	fifaNews = require('./fifaNews'),
 	agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36',
@@ -20,6 +22,8 @@ var http = require('http'),
 models.ready(function(){
 	fifa.config(models);
 	fifaNews.config(models);
+	instagram.config(models);
+	twitter.config(models);
 });
 
 app.set('views', __dirname + '/app');
@@ -27,9 +31,6 @@ app.use(require('body-parser')());
 app.use(require('method-override')());
 app.use(require('morgan')('dev'));
 app.set('port', process.env.PORT || 8080);
-
-var twitter = require('child_process').fork(__dirname + '/twitter.js');
-var instagram = require('child_process').fork(__dirname + '/instagram.js');
 
 var req_id = (function (){
 	var index = 1;
@@ -63,7 +64,6 @@ function spawn(){
 };
 
 app.get('/twitter/:handler', function(req, res){
-	var sent = false;
 	var path;
 	if (req.query.f && req.query.f == 'img') {
 		path = '/' + req.param('handler') +'/media';
@@ -71,33 +71,40 @@ app.get('/twitter/:handler', function(req, res){
 	else {
 		path = '/' + req.param('handler');	
 	}
-	twitter.send(path);
-	twitter.on('message', function(message){
-		if (message.error) {
-			return res.send(500);
+	var options = {
+		hostname: 'twitter.com',
+		path: path, 
+		headers: {
+			accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			'cache-control': 'max-age=0',
+			'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36'
+		}	
+	};
+	twitter.fetch(options, function(error, data) {
+		if (error) {
+			res.send(500);
+			throw error;
 		}
-		console.log('respond received from twitter...')
-		res.send(message.data);
-		sent = true;
-	});
-	twitter.on('close', function(code){
-		if (!sent) res.send(500);
+		res.send(data);
 	});
 });
 
 app.get('/instagram/:handler', function(req, res){
-	var sent = false;
-	instagram.send('/' + req.param('handler'));
-	instagram.on('message', function(message){
-		if (message.error) {
-			return res.send(500);
+	var options = {
+		hostname: 'instagram.com',
+		path: '/' + req.param('handler'), 
+		headers: {
+			'cache-control': 'max-age=0',
+			'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36'
+		}	
+	};
+	instagram.fetch(options, function(error, data){
+		if (error) {
+			res.send(500);
+			throw error;
 		}
 		console.log('respond received from instagram...')
-		res.send(message.data);
-		sent = true;
-	});
-	instagram.on('close', function(code){
-		if (!sent) res.send(500);
+		res.send(data);
 	});
 });
 

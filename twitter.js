@@ -1,8 +1,7 @@
 stackTraceLimit = Infinity;
 
-console.log('Forking Twitter %s...', process.pid);
-
-var http = require('http'),
+var self = this,
+	http = require('http'),
 	https = require('https'),
 	redis = require('redis'),
 	mongoose = require('mongoose'),
@@ -12,29 +11,12 @@ var http = require('http'),
 	fs = require('fs'),
 	cpuCount = require('os').cpus().length,
 	agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36',
-	left = [], json = [], start;
-
-var options = {
-	hostname: 'twitter.com',
-	path: '/', 
-	headers: {
-		accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-		'cache-control': 'max-age=0',
-		'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36'
-	}	
-};
-
-process.on('message', function(message){
-	console.log('got message')
-	console.log(message);
-	options.path = message;
-	fetch(options);
-});
+	models;
 
 
-function fetch(options) {
+function fetch(options, cb) {
 	console.log('about to fetch')
-	start = new Date().getTime();
+	var start = new Date().getTime();
 	var req = https.request(options, function(res){
 		var data = '';
 
@@ -52,62 +34,66 @@ function fetch(options) {
 			var divs = data.split('<div class="Grid" data-component-term="tweet" role="presentation">');
 			divs.splice(divs.length - 1, 1);
 			divs.splice(0, 1);
-
+			var left = [];
 			for (var i = 0; i < divs.length; ++i) {
 				divs[i] = '<div class="Grid" data-component-term="tweet" role="presentation">' + divs[i];
-				left.push(i);
-				jsonify(i, divs[i]);
+				// left.push(i);
 			};
 
-			console.log('jsonified')
+			// fs.writeFile('content.html', divs[0], function(error){
+			// 	if (error) throw error;
+			// 	console.log('wrote to file')
+			// });
+			// return;
+
+			jsonify(i, divs.join('\n'), left, cb);
 
 			divs = null;
 			data = null;
 		});
 	});
 	req.on('error', function(e) {
-	  console.log('problem with request: ' + e.message);
-	  process.send({
-	  	error: true
-	  });
+	  return cb(error);
 	  // global.gc();
 	});
 
 	req.end();
 };
 
-function jsonify(index, div) {
-	console.log('in jsonify')
-	jsdom.env(
-	  div,
-	  ["http://code.jquery.com/jquery.js"],
-	  function (error, window) {
-	  	if (error) {
-	  		process.send({
-	  			error: true
-	  		});
-	  		// global.gc();
-	  		throw error;
-	  	}
-	  	console.log('json generated..')
-	  	json.push({
-	  		index: index,
-	  		tweeted_by:  window.$('.ProfileTweet-fullname').text(),
-	  		tweet_body: window.$("p").text(),
-	  		tweet_image_url: window.$('.TwitterPhoto-mediaSource').attr('src'),
-	  		tweet_url: window.$('.twitter-timeline-link').attr('href'),
-	  		retweet_count: window.$('.ProfileTweet-action--retweet .ProfileTweet-actionCountForPresentation').text(),
-	  		favorited_count: window.$('.ProfileTweet-action--favorite .ProfileTweet-actionCountForPresentation').text(),
-	  		tweet_timestamp: window.$('.js-short-timestamp').text()
-	  	});
-	  	left.splice(left.indexOf(index), 1);
-	  	if (left.length == 0) finalize();
-	  	div = null;
-	  }
-	);
+function jsonify(index, divs, left, cb) {
+	console.log('in jsonify');
+	var json = [];
+	// for (var i = 0; i < divs.length; ++i) {
+		jsdom.env(
+		  divs,
+		  ["http://code.jquery.com/jquery.js"],
+		  function (error, window) {
+		  	if (error) {
+		  		return cb(error);
+		  	}
+		  	var $ = window.$;
+		  	$('.Grid').each(function(){
+			  	json.push({
+			  		index: index,
+			  		tweeted_by:  $(this).find('.ProfileTweet-fullname').text(),
+			  		tweet_body: $(this).find("p").text(),
+			  		tweet_image_url: $(this).find('.TwitterPhoto-mediaSource').attr('src'),
+			  		tweet_url: $(this).find('.twitter-timeline-link').attr('href'),
+			  		retweet_count: $(this).find('.ProfileTweet-action--retweet .ProfileTweet-actionCountForPresentation').text(),
+			  		favorited_count: $(this).find('.ProfileTweet-action--favorite .ProfileTweet-actionCountForPresentation').text(),
+			  		tweet_timestamp: $(this).find('.js-short-timestamp').text()
+			  	});
+		  	});
+		  	// left.splice(left.indexOf(index), 1);
+		  	// if (left.length == 0) 
+		  	finalize(json, cb);
+		  	// div = null;
+		  }
+		);
+	// }
 };
 
-function finalize() {
+function finalize(json, cb) {
 	json.sort(function(a, b) {
 		return a.index - b.index;
 	});
@@ -115,9 +101,14 @@ function finalize() {
 	for (var i = 0; i < json.length; ++i) {
 		delete json[i].index;
 	};
-	console.log('ready to respond...')
-	process.send({
-		data: { data: json }
-	});
+
+	cb(null, { data: json });
 	// global.gc();
+};
+
+exports.fetch = fetch;
+
+exports.config = function(m){
+	models = m;
+	return self;
 };
