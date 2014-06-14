@@ -64,16 +64,28 @@ function spawn(){
 };
 
 app.get('/twitter/:handler', function(req, res){
-	var path;
-	if (req.query.f && req.query.f == 'img') {
-		path = '/' + req.param('handler') +'/media';
-	}
-	else {
-		path = '/' + req.param('handler');	
-	}
 	var options = {
 		hostname: 'twitter.com',
-		path: path, 
+		path: '/' + req.param('handler'), 
+		headers: {
+			accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			'cache-control': 'max-age=0',
+			'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36'
+		}	
+	};
+	twitter.fetch(options, function(error, data) {
+		if (error) {
+			res.send(500);
+			throw error;
+		}
+		res.send(data);
+	});
+});
+
+app.get('/twitter/:handler/media', function(req, res){
+	var options = {
+		hostname: 'twitter.com',
+		path: '/' + req.param('handler') +'/media', 
 		headers: {
 			accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 			'cache-control': 'max-age=0',
