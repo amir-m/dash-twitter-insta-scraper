@@ -72,9 +72,10 @@ function jsonify(index, divs, left, cb) {
 		  		return cb(error);
 		  	}
 		  	var $ = window.$;
+		  	var i = 0;
 		  	$('.Grid').each(function(){
 			  	json.push({
-			  		index: index,
+			  		index: i++,
 			  		tweeted_by:  $(this).find('.ProfileTweet-fullname').text(),
 			  		tweet_body: $(this).find("p").text(),
 			  		tweet_image_url: $(this).find('.TwitterPhoto-mediaSource').attr('src'),
