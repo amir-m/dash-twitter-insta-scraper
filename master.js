@@ -16,6 +16,7 @@ var http = require('http'),
 	twitter = require('./twitter'),
 	fifa = require('./fifa'),
 	fifaNews = require('./fifaNews'),
+	rss = require('./rss'),
 	agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36',
 	workers= {}, left = [], start;
 	
@@ -24,6 +25,7 @@ models.ready(function(){
 	fifaNews.config(models);
 	instagram.config(models);
 	twitter.config(models);
+	rss.config(models);
 });
 
 app.set('views', __dirname + '/app');
@@ -150,15 +152,6 @@ app.get('/fifa', function(req, res){
 		res.send(data);
 		data = null;
 	});
-	// fifa.send({ id: id });
-	// fifa.on('message', function(message){
-	// 	if (message.error) {
-	// 		sent = true;
-	// 		return res.send(500);
-	// 	}
-	// 	console.log('respond received from fifa %s', message.id);
-	// 	if (id == message.id) return res.send(message.data);
-	// });
 });
 
 app.get('/fifa/news', function(req, res){
@@ -181,21 +174,19 @@ app.get('/fifa/news', function(req, res){
 		res.send(data);
 		data = null;
 	});
-	// fifa.send({ id: id });
-	// fifa.on('message', function(message){
-	// 	if (message.error) {
-	// 		sent = true;
-	// 		return res.send(500);
-	// 	}
-	// 	console.log('respond received from fifa %s', message.id);
-	// 	if (id == message.id) return res.send(message.data);
-	// });
+});
+
+app.get('/rss/call', function(req, res){
+	var uri = req.originalUrl.replace('/rss/call?', '');
+	var start = new Date().getTime();
+	rss.fetch(uri, function(error, data){
+		if (error) return res.send(500);
+		console.log('about to respond, took %s ms...', new Date().getTime() - start);
+		res.send(data);
+		data = null;
+	});
 });
 
 app.get('/health', function(req, res){
 	res.send(200);
 });
-
-// fifa.on('close', function(code){
-// 	fifa = require('child_process').fork(__dirname + '/fifa.js');
-// });

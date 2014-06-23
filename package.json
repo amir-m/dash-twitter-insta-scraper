@@ -14,6 +14,7 @@
     "morgan": "*",
     "async": "*",
     "jsdom": "*",
-    "phantom": "*"
+    "phantom": "*",
+    "xml2js": "*"
   }
 }

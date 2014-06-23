@@ -59,8 +59,8 @@ function fetch(options, id, res_object, cb) {
 			data = null;
 		});
 	});
-	req.on('error', function(e) {
-	  console.log('problem with request: ' + e.message);
+	req.on('error', function(error) {
+	  console.log('problem with request: ' + error.message);
 	  cb(error);
 	  // global.gc();
 	});
