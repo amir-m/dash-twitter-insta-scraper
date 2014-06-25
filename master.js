@@ -89,7 +89,7 @@ app.get('/twitter/:handler', function(req, res){
 app.get('/twitter/search/:query/media', function(req, res){
 	var options = {
 		hostname: 'twitter.com',
-		path: '/search?v=stream&mode=photos&q=' + req.param('handler'), 
+		path: '/search?v=stream&mode=photos&q=' + req.param('query'), 
 		headers: {
 			accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 			'cache-control': 'max-age=0',
