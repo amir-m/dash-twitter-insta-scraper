@@ -14,17 +14,19 @@ var http = require('http'),
 	models = require('./models').config(mongoose),
 	instagram = require('./instagram'),
 	twitter = require('./twitter'),
+	twitter_search = require('./twitter_search'),
+	fifa_news = require('./fifaNews'),
 	fifa = require('./fifa'),
-	fifaNews = require('./fifaNews'),
 	rss = require('./rss'),
 	agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36',
 	workers= {}, left = [], start;
 	
 models.ready(function(){
 	fifa.config(models);
-	fifaNews.config(models);
+	fifa_news.config(models);
 	instagram.config(models);
 	twitter.config(models);
+	twitter_search.config(models);
 	rss.config(models);
 });
 
@@ -76,6 +78,25 @@ app.get('/twitter/:handler', function(req, res){
 		}	
 	};
 	twitter.fetch(options, function(error, data) {
+		if (error) {
+			res.send(500);
+			throw error;
+		}
+		res.send(data);
+	});
+});
+
+app.get('/twitter/search/:query/media', function(req, res){
+	var options = {
+		hostname: 'twitter.com',
+		path: '/search?v=stream&mode=photos&q=' + req.param('handler'), 
+		headers: {
+			accept:'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			'cache-control': 'max-age=0',
+			'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36'
+		}	
+	};
+	twitter_search.fetch(options, function(error, data) {
 		if (error) {
 			res.send(500);
 			throw error;
@@ -167,7 +188,7 @@ app.get('/fifa/news', function(req, res){
 	};
 	var res_object = [];
 	var start = new Date().getTime();
-	fifaNews.fetch(options, id, res_object, function(error, data){
+	fifa_news.fetch(options, id, res_object, function(error, data){
 		if (error) return res.send(500);
 
 		console.log('about to respond, took %s ms...', new Date().getTime() - start);
